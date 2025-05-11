@@ -11,7 +11,7 @@ from scipy import stats
 quantityToGenerate = 10000
 generator = "CUADRADOS"
 
-seed = 1234 #Opcional pero requiere seedSize en su lugar 
+seed = 5953 #Opcional pero requiere seedSize en su lugar 
 seedSizeParam = 4 #Opcional, se usa cuando no hay seed
 
 ## Funcion principal
@@ -165,7 +165,7 @@ def mean_variance_test(normalizedNumbers, mean_tol=0.01, var_tol=0.005):
     }
 
 
-def chi_square_test(normalizedNumbers, bins=100):
+def chi_square_test(normalizedNumbers, bins = 20):
     """
     Realiza una prueba chi-cuadrado para comprobar la uniformidad de los números generados
     utilizando scipy.stats.chisquare.
@@ -321,28 +321,34 @@ def printGraphics(normalizedNumbers, chiSquareResult):
     Muestra un único gráfico de histograma con los resultados de la prueba chi-cuadrado.
     """
     import matplotlib.pyplot as plt
+    import numpy as np
 
-    bins = 100 # Aca esta la cantidad de intervalos que usas para la prueba chi cuadrado. Tiene que ser coincidente con el numero usado
+    bins = 20 # Aca esta la cantidad de intervalos que usas para la prueba chi cuadrado. Tiene que ser coincidente con el numero usado
     expected = len(normalizedNumbers) / bins
+    bin_edges = np.linspace(0, 1, bins + 1) # Definimos explícitamente los bordes de los bins
 
     fig, ax = plt.subplots(figsize=(10, 6))
 
     # Histograma
-    ax.hist(normalizedNumbers, bins=bins, edgecolor='black', alpha=0.7)
+    n, bins_hist, patches = ax.hist(normalizedNumbers, bins=bin_edges, edgecolor='black', alpha=0.7, rwidth=0.8)
     ax.set_title('Histograma de Números Aleatorios Normalizados')
     ax.set_xlabel('Valor')
     ax.set_ylabel('Frecuencia')
-    
+
     # Línea de frecuencia esperada
     ax.axhline(y=expected, color='r', linestyle='-', label=f'Esperado: {expected:.1f}')
-    
+
     # Cuadro con resultado de la prueba chi-cuadrado
     chi_text = f"Chi²: {chiSquareResult['chi_square']:.4f}\np-value: {chiSquareResult['p_value']:.4f}\n"
     chi_text += "Uniformidad: " + ("ACEPTADA" if chiSquareResult['passed'] else "RECHAZADA")
     ax.text(0.05, 0.95, chi_text, transform=ax.transAxes,
             verticalalignment='top', bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
-    
+
     ax.legend()
+
+    for edge in bin_edges: # Usamos los bordes definidos explícitamente
+        ax.axvline(x=edge, color='gray', linestyle='--', linewidth=0.5)
+
     plt.tight_layout()
     plt.show()
 
@@ -352,12 +358,12 @@ def printGraphics(normalizedNumbers, chiSquareResult):
     print(f"Valor p: {chiSquareResult['p_value']:.4f}")
     print(f"Grados de libertad: {chiSquareResult['dof']}")
     print(f"Resultado: {'Aceptado' if chiSquareResult['passed'] else 'Rechazado'} (α=0.05)")
-    
+
     print("\nFrecuencias por intervalo:")
     print("-------------------------")
     print("Intervalo | Observado | Esperado")
     for i, (obs, exp) in enumerate(zip(chiSquareResult['observed'], [expected] * len(chiSquareResult['observed']))):
-        print(f"{i/bins:.2f}-{(i+1)/bins:.2f}  | {obs:9d} | {exp:8.1f}")
+        print(f"{bin_edges[i]:.2f}-{bin_edges[i+1]:.2f}  | {obs:9d} | {exp:8.1f}") # Usamos los bordes para el intervalo
 
     return 0
 
