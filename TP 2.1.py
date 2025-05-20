@@ -9,9 +9,9 @@ from scipy import stats
 # Parámetros 
 
 quantityToGenerate = 10000
-generator = "CUADRADOS"
+generator = "PYTHON_SECRETS"
 
-seed = 5953 #Opcional pero requiere seedSize en su lugar 
+seed = 70831 #Opcional pero requiere seedSize en su lugar 
 seedSizeParam = 4 #Opcional, se usa cuando no hay seed
 
 ## Funcion principal
@@ -28,15 +28,17 @@ def startSimulation(quantityToGenerate, generator, seed = None,seedSizeParam = N
 
     chiSquareResult = chi_square_test(normalizedNumbers)
     seriesResult = series_test(normalizedNumbers)
+    runsTestResult = runs_test(normalizedNumbers)
+    meanVarianceResult = mean_variance_test(normalizedNumbers)
 
     printGraphics(normalizedNumbers,chiSquareResult)
     printSeriesHeatmap(seriesResult)
-    runsTestResult = runs_test(normalizedNumbers)
+
+
     printRunsTest(runsTestResult)
+    printSeriesTest(seriesResult)
+    printMeanVarianceTest(meanVarianceResult)
 
-    meanVarianceResult = mean_variance_test(normalizedNumbers)
-
-    print("El resultado de la prueba de media y varianza es:", meanVarianceResult)
 
     return 0
 
@@ -269,6 +271,8 @@ def runs_test(normalizedNumbers):
         'passed': passed
     }
 
+## Resultados por consola
+
 def printRunsTest(runsTestResult):
     print("\nResultados del Test de Corridas (Runs Test):")
     print("--------------------------------------------")
@@ -279,6 +283,27 @@ def printRunsTest(runsTestResult):
     print(f"Valor p: {runsTestResult['p_value']:.4f}")
     print(f"Resultado: {'Aceptado' if runsTestResult['passed'] else 'Rechazado'} (α=0.05)")
 
+def printSeriesTest(seriesResult):
+    print("\nResultados del Test de Series:")
+    print("------------------------------")
+    print(f"Estadístico Chi²      : {seriesResult['chi_square']:.4f}")
+    print(f"Valor p               : {seriesResult['p_value']:.4f}")
+    print(f"Grados de libertad    : {seriesResult['dof']}")
+    print(f"Frecuencia esperada   : {seriesResult['expected']:.2f} por celda")
+    print(f"Resultado             : {'ACEPTADO' if seriesResult['passed'] else 'RECHAZADO'} (α=0.05)")
+
+def printMeanVarianceTest(result):
+    print("\nResultados del Test de Media y Varianza:")
+    print("----------------------------------------")
+    print(f"Media muestral       : {result['mean']:.5f}")
+    print(f"Media esperada       : {result['expected_mean']:.5f}")
+    print(f"¿Dentro de tolerancia? : {'Sí' if result['mean_passed'] else 'No'}")
+    print()
+    print(f"Varianza muestral    : {result['variance']:.5f}")
+    print(f"Varianza esperada    : {result['expected_variance']:.5f}")
+    print(f"¿Dentro de tolerancia? : {'Sí' if result['var_passed'] else 'No'}")
+    print()
+    print(f"Resultado global     : {'ACEPTADO' if result['passed'] else 'RECHAZADO'} (α=0.05)")
 
 ## Generadores a comparar
 
